@@ -7,11 +7,23 @@ type optionType = {
   lon: number,
 }
 
+type forecastType = {
+  name: string,
+  main: {
+    temp: number,
+  }
+  weather: [{
+    icon: string
+    main: string,
+  }]
+}
+
 const App = (): JSX.Element => {
 
   const [options, setOptions] = useState<[]>([]);
   const [search, setSearch] = useState<string>("");
   const [city, setCity] = useState<optionType>();
+  const [forecast, setForecast] = useState<forecastType>();
 
   const getSearchValues = (city: string) => {
     if(city == null || city == '') return;
@@ -30,6 +42,7 @@ const App = (): JSX.Element => {
 
   const onCitySelect = (option: optionType) => {
     setCity(option);
+    setSearch(option.name);
   }
 
   const getWeather = () => {
@@ -37,7 +50,9 @@ const App = (): JSX.Element => {
 
     fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${city?.lat}&lon=${city?.lon}&units=metric&appid=${process.env.REACT_APP_OPEN_WEATHER_KEY}`)
       .then((res) => res.json())
-      .then((data) => console.log( {data} ));
+      .then((data) => { setForecast(data) });
+
+    setOptions([]);
   }
 
   return (
@@ -62,6 +77,17 @@ const App = (): JSX.Element => {
               </li>
             ))}
           </ul>
+
+          <h1>{forecast?.name}</h1>
+          <h2>{forecast?.main?.temp}</h2>
+          <ul>
+            {forecast?.weather.map((x) => (
+              <li>
+                {x.main}
+              </li>
+            ))}
+          </ul>
+
     </div>
   )
 }
